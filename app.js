@@ -1,4 +1,4 @@
-const API = "https://doctor-api-w54x.onrender.com";
+const API = import.meta.env.VITE_API_URL;
 
 // ---------- LOGIN ----------
 document.getElementById("loginBtn").addEventListener("click", () => {
