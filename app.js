@@ -1,5 +1,5 @@
 // ==== CHANGE THIS TO YOUR API URL ====
-const API_URL = "https://your-api-url.com";
+const API_URL = "https://doctor-api-w54x.onrender.com";
 
 // ==== DOM ELEMENTS ====
 const loginBtn = document.getElementById("loginBtn");
