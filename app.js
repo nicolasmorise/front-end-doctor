@@ -1,64 +1,107 @@
-const API = import.meta.env.VITE_API_URL;
+// ==== CHANGE THIS TO YOUR API URL ====
+const API_URL = "https://your-api-url.com";
 
-// ---------- LOGIN ----------
-document.getElementById("loginBtn").addEventListener("click", () => {
-  window.location.href = `${API}/auth/github`;
+// ==== DOM ELEMENTS ====
+const loginBtn = document.getElementById("loginBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+const userInfo = document.getElementById("user-info");
+const doctorForm = document.getElementById("doctorForm");
+const loadDoctorsBtn = document.getElementById("loadDoctors");
+const doctorsList = document.getElementById("doctorsList");
+
+
+// ===============================
+//  LOGIN WITH GITHUB
+// ===============================
+loginBtn.addEventListener("click", () => {
+  // Redirect to backend GitHub login
+  window.location.href = `${API_URL}/auth/github`;
 });
 
-// ---------- LOGOUT ----------
-document.getElementById("logoutBtn").addEventListener("click", async () => {
-  await fetch(`${API}/auth/logout`, {
-    method: "GET",
-    credentials: "include",
+
+// ===============================
+//  LOGOUT
+// ===============================
+logoutBtn.addEventListener("click", async () => {
+  await fetch(`${API_URL}/auth/logout`, {
+    method: "POST",
+    credentials: "include",  // send cookies
   });
-  document.getElementById("user-info").innerText = "Logged out.";
+
+  userInfo.innerHTML = "Logged out.";
 });
 
-// ---------- CHECK AUTH ----------
-async function checkUser() {
-  const res = await fetch(`${API}/auth/me`, {
-    credentials: "include",
-  });
 
-  if (res.status === 200) {
-    const user = await res.json();
-    document.getElementById("user-info").innerText =
-      "Logged in as: " + user.username;
-  } else {
-    document.getElementById("user-info").innerText = "Not logged in.";
+// ===============================
+//  FETCH CURRENT USER (/me)
+// ===============================
+async function loadUser() {
+  try {
+    const res = await fetch(`${API_URL}/auth/me`, {
+      credentials: "include"
+    });
+
+    if (!res.ok) {
+      userInfo.innerHTML = "Not logged in";
+      return;
+    }
+
+    const data = await res.json();
+
+    userInfo.innerHTML = `
+      <h3>Logged in as:</h3>
+      <p><strong>${data.username}</strong></p>
+      <img src="${data.avatar}" width="80">
+    `;
+
+  } catch (err) {
+    userInfo.innerHTML = "Error loading user";
   }
 }
 
-checkUser();
+loadUser();
 
-// ---------- CREATE DOCTOR ----------
-document.getElementById("doctorForm").addEventListener("submit", async (e) => {
+
+// ===============================
+//  CREATE DOCTOR (POST)
+// ===============================
+doctorForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const formData = Object.fromEntries(new FormData(e.target));
+  const formData = new FormData(doctorForm);
+  const payload = Object.fromEntries(formData.entries());
 
-  const res = await fetch(`${API}/doctors`, {
+  const res = await fetch(`${API_URL}/doctors`, {
     method: "POST",
-    credentials: "include",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(formData),
+    credentials: "include",
+    body: JSON.stringify(payload)
   });
+
+  if (!res.ok) {
+    alert("Error creating doctor");
+    return;
+  }
 
   const data = await res.json();
-  alert(JSON.stringify(data, null, 2));
+  alert("Doctor created!");
+  console.log(data);
 });
 
-// ---------- LOAD DOCTORS ----------
-document.getElementById("loadDoctors").addEventListener("click", async () => {
-  const res = await fetch(`${API}/doctors`, {
-    credentials: "include",
+
+// ===============================
+//  LOAD ALL DOCTORS
+// ===============================
+loadDoctorsBtn.addEventListener("click", async () => {
+  const res = await fetch(`${API_URL}/doctors`, {
+    credentials: "include"
   });
 
-  const doctors = await res.json();
+  if (!res.ok) {
+    doctorsList.textContent = "Error loading doctors";
+    return;
+  }
 
-  document.getElementById("doctorsList").innerText = JSON.stringify(
-    doctors,
-    null,
-    2
-  );
+  const data = await res.json();
+  doctorsList.textContent = JSON.stringify(data, null, 2);
 });
