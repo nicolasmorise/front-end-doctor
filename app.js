@@ -114,16 +114,30 @@ loadDoctorsBtn.addEventListener("click", async () => {
 //  Find Doctor
 // ===============================
 searchInput.addEventListener("input", async () => {
-  const query = searchInput.value.trim();
+  const raw = searchInput.value.trim();
 
-  if (query.length < 2) {
+  if (raw.length < 2) {
     dropdown.style.display = "none";
     return;
   }
 
+  // 🧠 Split input into words
+  const parts = raw.split(/\s+/);
+
+  // Build query params
+  const params = new URLSearchParams();
+
+  if (parts.length === 1) {
+    // Single word → OR search (first OR last)
+    params.append("q", parts[0]);
+  } else if (parts.length >= 2) {
+    // Two or more → assume first + last
+    params.append("first", parts[0]);
+    params.append("last", parts[1]);
+  }
+
   try {
-    // Try all 3 API options
-    const url = `${API_URL}/doctors/search?first=${query}&last=${query}`;
+    const url = `${API_URL}/doctors/search?${params.toString()}`;
 
     const res = await fetch(url, { credentials: "include" });
     if (!res.ok) {
@@ -155,6 +169,7 @@ searchInput.addEventListener("input", async () => {
     dropdown.style.display = "none";
   }
 });
+
 
 function selectDoctor(doc) {
   dropdown.style.display = "none";
