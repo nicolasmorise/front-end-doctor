@@ -1,0 +1,33 @@
+body {
+  font-family: Arial;
+  padding: 20px;
+  max-width: 600px;
+  margin: auto;
+}
+
+input, button {
+  display: block;
+  margin: 10px 0;
+  padding: 8px;
+}
+
+button {
+  cursor: pointer;
+}
+ .dropdown {
+    border: 1px solid #ccc;
+    background: white;
+    display: none;
+    position: absolute;
+    width: 200px;
+    max-height: 150px;
+    overflow-y: auto;
+    z-index: 1000;
+  }
+  .dropdown div {
+    padding: 6px;
+    cursor: pointer;
+  }
+  .dropdown div:hover {
+    background: #eee;
+  }
